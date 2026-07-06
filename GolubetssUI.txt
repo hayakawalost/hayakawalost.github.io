@@ -1,0 +1,512 @@
+?times = 0
+ ?foe = phase3 & foe.hp <= 0
+  times = totaltime
+
+?totaltime <= 1
+ times = 0
+
+?times ! 0
+ >o-5,-3,@timePercentColor@
+^,@time.FormatCasual(times,true)@
+/*
+    _____
+  .´     `.
+ /         \
+:           :
+:           :
+ \         /
+  `._____.´               
+*/
+
+var Sframe = 0
+?armor >= 4
+  Sframe++
+?armor < 4
+  Sframe = 0
+?Sframe = 25 
+  Sframe = 1
+
+var Scolor
+?armor >= 4
+  Scolor = ＂#0000FF＂
+?armor >= 8
+  Scolor = ＂#003DFF＂
+?armor >= 12
+  Scolor = ＂#0066FF＂
+?armor >= 16
+  Scolor = ＂#008CFF＂
+?armor >= 20
+  Scolor = ＂#00B6FF＂
+?armor >= 24
+  Scolor = ＂#02E5FF＂
+
+
+?(Sframe = 1 | Sframe = 2
+^| Sframe = 23 | Sframe = 24)
+ >o-5,4,@Scolor@,ascii
+`._____.´
+asciiend
+?(Sframe = 3 | Sframe = 4
+^| Sframe = 21 | Sframe = 22)
+ >o-7,3,@Scolor@,ascii
+#\#########/
+asciiend
+?(Sframe = 5 | Sframe = 6
+^| Sframe = 19 | Sframe = 20)
+ >o-7,2,@Scolor@,ascii
+:###########:
+asciiend
+?(Sframe = 7 | Sframe = 8
+^| Sframe = 17 | Sframe = 18)
+ >o-7,1,@Scolor@,ascii
+:###########:
+asciiend
+?(Sframe = 9 | Sframe = 10
+^| Sframe = 15 | Sframe = 16)
+ >o-7,0,@Scolor@,ascii
+#/#########\
+asciiend
+?(Sframe = 11 | Sframe = 12
+^| Sframe = 13 | Sframe = 14)
+ >o-5,-2,@Scolor@,ascii
+##_____
+.´#####`.
+asciiend
+
+>o-2,@(time/30)%2-1@,#rainFF,♫
+>o-1,@-((time/30)%2)@,#rainFF,♪
+
+?loc ! crypt
+  disable npcDialog
+
+?foe
+ >f0,0,#red,@aim［frame］@
+var aim = ［ascii
+##!
+-#+#-
+##¡
+asciiend,
+ascii
+\###/
+##X##
+/###\
+asciiend］
+var frame  
+frame = math.FloorToInt(totaltime / 15) % 2
+
+var mnbtn
+mnbtn = import UI/MindstoneButton
+mnbtn.SetXY(10,1)
+
+var itemname
+itemname = import UI/ItemName
+
+itemname.TextPanelL.visible = true
+itemname.TextPanelR.visible = true
+
+itemname.TextPanelL.x = 30
+itemname.TextPanelR.x = 30
+
+itemname.resultL.x = 0
+itemname.resultL.y = 1
+
+itemname.resultR.x = 0
+itemname.resultR.y = 1
+
+itemname.ASCIIPanelL.visible = true
+itemname.ASCIIPanelL.y = 13
+itemname.ASCIIPanelL.x = 0
+
+itemname.ASCIIPanelR.visible = true
+itemname.ASCIIPanelR.y = 13
+itemname.ASCIIPanelR.x = 10
+
+?totaltime > 1
+  >`0,@screen.h-7@,@itemname.Lclr@,L: 
+^@itemname.TextL.text@
+  >`0,@screen.h-6@,@itemname.Rclr@,R: 
+^@itemname.TextR.text@
+
+
+var loopCount = 0
+
+func barString(cur, max, width)
+  ?max > 0
+    ?cur <= 0
+      return ＂＂
+    var bar = ＂＂
+    var percent = cur * 100 / max
+    var blockCount = math.FloorToInt(percent * width / 100)
+    
+    for i = 0..blockCount
+      bar = bar + ＂█＂
+    return bar
+
+var colorBuff
+ 
+func formatBuffs(str)
+  var result = ［］
+  ?str
+    for buff : string.Split(str, ＂,＂)
+     var barr = string.Split(buff, ＂:＂)
+     result.Add(barr［2］+barr［0］+＂:＂+barr［3］+＂;＂)
+    return result
+  :
+    return ［］
+var playerBuffs
+var playerDebuffs
+var foeBuffs
+var foeDebuffs
+playerBuffs = formatBuffs(buffs.string)
+playerDebuffs = formatBuffs(debuffs.string)
+foeBuffs = formatBuffs(foe.buffs.string)
+foeDebuffs = formatBuffs(foe.debuffs.string)
+?playerBuffs.Count() ! 0
+  for i = 0..playerBuffs.Count()-1
+    >`3,@25 - i@,#green,@playerBuffs［i］@
+?playerDebuffs.Count() ! 0
+  for i = 0..playerDebuffs.Count()-1
+    >`15,@25 - i@,#red,@playerDebuffs［i］@
+?foeBuffs.Count() ! 0
+  for i = 0..foeBuffs.Count()-1
+    >`70,@23 - i@,#green,@foeBuffs［i］@
+?foeDebuffs.Count() ! 0
+  for i = 0..foeDebuffs.Count()-1
+    >`83,@23 - i@,#red,@foeDebuffs［i］@
+
+playerBuffs.Clear()
+playerDebuffs.Clear()
+foeBuffs.Clear()
+foeDebuffs.Clear()
+/*
+?barr［2］ = ＂❄＂
+  result.color = #009
+*/
+var apsR = 0
+var apsL = 0
+var tempR = ［］
+var tempL = ［］
+func APS(x, y, color1, color2)
+ ?item.right.state = 3
+  apsR++
+ tempR.Add(apsR)
+ ?tempR.Count() > 30
+  tempR.RemoveAt(0)
+ apsR = 0
+ ?item.left.state = 3
+  apsL++
+ tempL.Add(apsL)
+ ?tempL.Count() > 30
+  tempL.RemoveAt(0)
+ apsL = 0
+ ?!loc.begin
+  for valueR : tempR
+   apsR = apsR + valueR
+  for valueL : tempL
+   apsL = apsL + valueL
+ Display(x,y,color1,＂APS R:＂)
+ Display(x+7,y,color2,apsR)
+ Display(x,y+1,color1,＂APS L:＂)
+ Display(x+7,y+1,color2,apsL)
+ apsL = 0
+ apsR = 0
+APS(0,9,red,f70)
+
+var oldHp=0
+var ttHp=0
+var dps=0
+var dmgs=［］
+ttHp=foe.hp+foe.armor
+func DPS(x, y, color1, color2)
+ ?ttHp<oldHp
+  dmgs.Add(oldHp-ttHp)
+ :
+  dmgs.Add(0)
+ oldHp=ttHp
+ ?dmgs.Count()>30
+  dmgs.RemoveAt(0)
+ ?!loc.begin
+  for i:dmgs
+   dps+=i 
+  Display(x,y,color1, ＂DPS:＂)
+  Display(x+5,y,color2,dps)
+  dps=0
+DPS(0,11,red,f70)
+
+>h-1,1,╘ʘ╛
+>h-5,0,#AFF,ascii
+___
+`, )
+##`
+asciiend
+var timePercent
+timePercent = (totaltime * 100) / loc.bestTime
+  
+  ?loc.bestTime <= 0
+    >`51,2,#white,0%
+  :
+    >`51,2,#rainFF,@timePercent@%
+  
+  >`0,12,#rainFF,LOC: 
+  ?loc.stars <= 5
+    >`5,12,#white,@loc.name@ @loc.stars@☆
+  :?loc.stars <= 10
+    >`5,12,#cyan,@loc.name@ @loc.stars@☆
+  :?loc.stars <= 15
+    >`5,12,#yellow,@loc.name@ @loc.stars@☆
+  :?loc.stars <= 20
+    >`5,12,#green,@loc.name@ @loc.stars@☆
+
+  >`0,26,\o/ 
+
+  >`4,26,#F66,@hp@/@maxhp@♥
+  >`10,26,#8CE,［@armor@.@armor.f@］             
+
+                                       
+  var ColorName
+  var valeyfoe
+  valeyfoe = foe.name + ＂ ∞ ♥ * φ ❄ ＂
+^ + foe.level + ＂☆＂
+
+  >`@92-string.Size(valeyfoe)@
+^,24,#@ColorName@,@foe.name@
+^           @foe.level@☆
+
+  ?foe = boss
+    ColorName = rainFF
+  :?foe.level >= 16 & foe.level <= 20
+    ColorName = blue
+  :?foe = elite
+    ColorName = 3A9
+  :?foe.level = 0
+    ColorName = white
+  :?foe.level <= 5
+    ColorName = cyan
+  :?foe.level <= 10
+    ColorName = yellow
+  :?foe.level <= 15
+    ColorName = green
+  
+  ?!foe
+    >`63,24,#999,FOE IS NOT FOUND
+  var valeyhp
+  var valeydef
+  valeyhp = foe.hp + ＂/＂ + foe.maxhp
+  valeydef = foe.armor + ＂/＂ + foe.maxarmor
+
+  >`63,25,#900,0/0 HP♥ @barString(1,1,20)@
+  ?foe.hp > 0 
+   >`67,25,#red,HP♥ @barString
+^(foe.hp, foe.maxhp, 20)@
+   >`@66-string.Size(valeyhp)@,25,
+^#red,@valeyhp@
+
+  >`63,26,#009,0/0 DEF @barString(1,1,20)@
+  ?foe.armor > 0
+   >`@66-string.Size(valeydef)@,26,
+^#blue,@valeydef@
+   >`67,26,#blue,DEF @barString
+^(foe.armor, foe.maxarmor, 20)@
+
+  ?foe
+    ?foe.distance < 7
+     >f-2,-1,#red,@foe.distance@ ［MELEE］
+    :?foe.distance < 19
+     >f-2,-1,#FF9100,@foe.distance@ ［CLOSE］
+    :?foe.distance < 23
+     >f-2,-1,#yellow,@foe.distance@ ［RANGED］
+    :?foe.distance > 23
+     >f-2,-1,#green,@foe.distance@ ［FAR］
+
+  >`20,2,#rainFF,Best time: 
+^@time.FormatDigital(loc.bestTime)@
+  >`55,2,#cyan,Avrg time: 
+^@time.FormatDigital(loc.averageTime)@
+  
+  var timePercentColor
+  ?timePercent <= 70
+    timePercentColor = #green
+  :?timePercent <= 80
+    timePercentColor = #6C0
+  :?timePercent <= 90
+    timePercentColor = #yellow
+  :?timePercent <= 100
+    timePercentColor = #F80
+  :?timePercent <= 110
+    timePercentColor = #red
+  :
+    timePercentColor = #900
+  >`36,2,@timePercentColor@,
+^Cur time: @time.FormatDigital(totaltime)@
+
+
+  >`21,1,#ccc,o
+  >`22,1,@res.stone@
+  >`29,1,#730,_/`
+  >`32,1,@res.wood@
+  >`39,1,#ccc,≈~
+  >`41,1,#222,00
+  >`43,1,@res.tar@
+  >`48,1,#f70,:.
+  >`50,1,@res.bronze@
+  >`57,1,#c00,@
+  >`58,1,@res.ki@
+  >`67,1,#magenta,♦ 
+  >`68,1,@res.crystals@
+
+  >`0,25,#green,B:
+  >`12,25,#red,D:
+  >`67,23,#green,B: 
+  >`80,23,#red,D:
+
+  >`0,6,#yellow,GP: @loc.gp@
+  >`0,7,#green,Screen: @screen.i@
+  >`0,8,#cyan,Loops: @loopCount@
+  var foelvl
+  ?foe.level >= 10
+   foelvl = 1
+  :
+   foelvl = 0
+  var elm_x
+  elm_x = 80 - foelvl
+  var elm_y = 24
+  >`@elm_x@,@elm_y@,#888,∞ ❤ * φ ❄
+  ?foe = Poison
+   >`@elm_x@,@elm_y@,#260,∞
+  ?foe = Vigor
+   >`@elm_x+2@,@elm_y@,#F00,❤
+  ?foe = Aether
+   >`@elm_x+4@,@elm_y@,#F0F,*
+  ?foe = Fire
+   >`@elm_x+6@,@elm_y@,#F70,φ
+  ?foe = Ice
+   >`@elm_x+8@,@elm_y@,#8CE,❄
+  
+func DrawSkill(x, y, iconcolor, icon, skillId)
+  var cd = item.GetCooldown(skillId)
+  ?cd > 0
+    >`@x@,@y@,#red,@icon@ @time.FormatDigital(cd)@
+  :
+    >`@x@,@y@,#@iconcolor@,@icon@
+    >`@x+6@,@y@,#green,READY
+func DrawMiniSkill(x, y, iconcolor,icon,skillId)
+  var cd = item.GetCooldown(skillId)
+  ?cd > 0
+    >`@x@,@y@,#red,@icon@x
+  :
+    >`@x@,@y@,#@iconcolor@,@icon@
+    >`@x+1@,@y@,#green,R
+
+var locs_data = ［
+ ［＂rocky＂,［
+  ［3, phase1］,
+  ［4, phase2］,
+  ［20, phase3］］］,
+ ［＂valley＂,［
+  ［5, phase1］,
+  ［20, phase2］］］,
+ ［＂caves＂,［
+  ［20, phase1］］］,
+ ［＂forest＂,［
+  ［3, phase1］,
+  ［20, Phase2］］］,
+ ［＂halls＂,［
+  ［3, phase1］,
+  ［20, phase2］］］,
+ ［＂ridge＂,［
+  ［20, phase1］］］,
+ ［＂temple＂,［
+  ［20, phase1］］］］
+
+var array1 = ［＂  (:)＂,＂  (>>＂,＂  /<)＂,＂  ║▣║＂,
+^＂ ( (｝＂,＂ ---•＂,＂ --［］＂,＂-|≡≡7＂］
+var array2 = ［＂dash＂,＂bash＂,＂bardiche＂,＂mind＂,
+^＂mask＂,＂quarterstaff＂,＂heavy_hammer＂,＂blade＂］
+var array3 = ［＂o＂,＂∞＂,＂❤＂,＂*＂,＂φ＂,＂❄＂］
+var array4 = ［＂wand_stone＂,＂wand_poison＂,
+^＂wand_vigor＂,＂wand_aether＂,＂wand_fire＂,
+^＂wand_ice＂］
+var array5 = ［＂staff_stone＂,＂staff_poison＂,
+^＂staff_vigor＂,＂staff_aether＂,＂staff_fire＂,
+^＂staff_ice＂］
+var array6 = ［＂888＂,＂260＂,＂f00＂
+,＂fff＂,＂f70＂,＂8ce＂］
+
+
+func get_loc_last_foe(req_loc, req_stars)
+ for loc_data : locs_data
+  ?req_loc = loc_data［0］
+   for foes_data : loc_data［1］
+    ?req_stars <= foes_data［0］
+     return foes_data［1］
+ return none
+
+var last_boss_foe = ＂＂
+var boss_is_dead = false
+last_boss_foe= get_loc_last_foe(loc, loc.stars)
+
+?loc.loop
+  boss_is_dead = false
+
+?foe = last_boss_foe & foe.hp <= 0 & !boss_is_dead
+  boss_is_dead = true
+
+?!boss_is_dead
+ for v = 0..array1.Count() - 1
+  ?v <= array1.Count()/2 -1
+   DrawSkill(70, v - array1.Count()/2 +6 
+^,white, array1［v］, array2［v］)
+  :?v >= array1.Count()/2 
+   DrawSkill(81, v - array1.Count()/2 + 2 
+^,white, array1［v］, array2［v］)
+  >`72,0,#white,W:
+ for v = 0..array3.Count() - 1
+  DrawMiniSkill(75+(v*3),0,
+^array6［v］, array3［v］, array4［v］)
+  >`72,1,#white,S:
+ for v = 0..array3.Count() - 1
+  DrawMiniSkill(75+(v*3),1,
+^array6［v］, array3［v］, array5［v］)
+
+var oldStates = ［］
+var oldTimes = ［］
+var curstate = 0
+var curtime = 0
+func Display(x, y, color, text)
+ >`@x@,@y@,#@color@,@text@
+func FoeState(x, y, count, stcolor1, 
+^stcolor2, stcolor3)
+  Display(x,y,stcolor1,＂S:T＂)
+  ?oldStates.Count() < count
+    for i = 1..count
+      oldStates.Add(0)
+      oldTimes.Add(0)
+  ?foe.state ! curstate
+    ?oldStates.Count()<count
+      oldStates.Add(curstate)
+      oldStates.Add(curtime)
+    :
+      oldStates.RemoveAt(0)
+      oldTimes.RemoveAt(0)
+      oldStates.Add(curstate)
+      oldTimes.Add(curtime)
+    curstate = foe.state
+  curtime = foe.time
+  ?oldStates.Count() > 0
+    for i = 0..oldStates.Count() -1
+      Display(x+1,y+1+count-i,stcolor1,＂|＂)
+      Display(x+1-string.Size(oldStates［i］+＂＂),
+      ^y+1+count-i,stcolor3,oldStates［i］)
+      Display(x+2,y+1+count-i,
+      ^stcolor3,oldTimes［i］)
+  ?oldStates.Count() > count
+    oldStates.RemoveAt(count)
+  Display(x+1-string.Size(foe.state+＂＂),
+  ^y+1,stcolor2,foe.state+＂|＂)
+  Display(x+2,y+1,stcolor2,foe.time)
+FoeState(13,6,4,red,yellow,F70)
+
+
+
+>`@91-string.Size(encounter.eliteMod)@,19,
+^#green,@encounter.eliteMod@
