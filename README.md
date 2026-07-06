@@ -1,1 +1,1 @@
-# hayakawalost-hayakawalost.github.io
+# hayakawalost.github.io
